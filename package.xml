@@ -7,9 +7,19 @@
   <maintainer email="keerthi.sagar@imr.ie">KeerthiS</maintainer>
   <license>Apache License, Version 2.0</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>cs4home_core</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>rclcpp_components</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+
   <test_depend>ament_lint_auto</test_depend>
-  
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_lint_auto</test_depend>  
+
   
   <export>
     <build_type>ament_cmake</build_type>

@@ -5,7 +5,7 @@ navigation_cognition_master:
 
 goal_cognition:
   ros__parameters:
-    core: goal_cognition_bt
+    core: bt_navigator
     afferent: goal_input
     goal_input:
       topics: ["/goal_pose", "/critical_goal"]
@@ -24,8 +24,8 @@ dynamic_reconfigure_nav:
     core: dynamic_reconfigure_nav_bt
     afferent: nav_input
     nav_input:
-      topics: ["/navigate_to_pose/feedback", "/goal_criticality", "/people"]
-      types: ["nav2_msgs/action/NavigateToPose", "std_msgs/msg/Bool", "people_msgs/msg/People"]
+      topics: ["/navigate_to_pose/feedback", "/goal_criticality"]
+      types: ["nav2_msgs/action/NavigateToPose", "std_msgs/msg/Bool"]
     efferent: nav_params
     nav_params:
       topics: ["/global_costmap/set_parameters", "/local_costmap/set_parameters"]
