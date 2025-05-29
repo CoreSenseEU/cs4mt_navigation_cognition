@@ -1,0 +1,141 @@
+navigation_cognition_master:
+  ros__parameters:
+    flows: [nav_cognition_flow]
+    nav_cognition_flow: [goal_cognition, dynamic_reconfigure_nav]
+
+goal_cognition:
+  ros__parameters:
+    core: goal_cognition_bt
+    afferent: goal_input
+    goal_input:
+      topics: ["/goal_pose", "/critical_goal"]
+      types: ["geometry_msgs/msg/PoseStamped", "std_msgs/msg/Bool"]
+    efferent: goal_output
+    goal_output:
+      topics: ["/navigate_to_pose/goal", "/goal_criticality"]
+      types: ["nav2_msgs/action/NavigateToPose", "std_msgs/msg/Bool"]
+    parameters:
+      # Define critical zones or goal types
+      critical_zones: [[10.0, 5.0, 2.0]]  # [x, y, radius] - areas where goals are critical
+      emergency_keywords: ["emergency", "urgent", "critical"]
+
+dynamic_reconfigure_nav:
+  ros__parameters:
+    core: dynamic_reconfigure_nav_bt
+    afferent: nav_input
+    nav_input:
+      topics: ["/navigate_to_pose/feedback", "/goal_criticality", "/people"]
+      types: ["nav2_msgs/action/NavigateToPose", "std_msgs/msg/Bool", "people_msgs/msg/People"]
+    efferent: nav_params
+    nav_params:
+      topics: ["/global_costmap/set_parameters", "/local_costmap/set_parameters"]
+      types: ["rcl_interfaces/srv/SetParameters", "rcl_interfaces/srv/SetParameters"]
+    parameters:
+      # Thresholds for triggering reconfiguration
+      distance_threshold: 2.0  # meters - if still this far from goal
+      time_threshold: 30.0     # seconds - if taking too long
+      stuck_threshold: 5.0     # seconds - if not making progress
+      # Reconfigure parameters
+      normal_inflation_radius: 0.55
+      critical_inflation_radius: 0.35
+      recovery_inflation_radius: 0.25  # Even smaller when stuck
+
+# Behavior Trees
+behavior_trees:
+  ros__parameters:
+    goal_cognition_bt:
+      root: GoalSequence
+      nodes:
+        GoalSequence:
+          type: SequenceNode
+          children: [ReceiveGoal, EvaluateCriticality, SendToNav2]
+        
+        ReceiveGoal:
+          type: ConditionNode
+          topic: "/goal_pose"
+          
+        EvaluateCriticality:
+          type: SelectorNode
+          children: [CheckCriticalFlag, CheckCriticalZone, DefaultNormal]
+          
+        CheckCriticalFlag:
+          type: ConditionNode
+          topic: "/critical_goal"
+          expected_value: true
+          
+        CheckCriticalZone:
+          type: ConditionNode
+          service: "/check_critical_zone"
+          
+        DefaultNormal:
+          type: ActionNode
+          action: "/set_normal_goal"
+          
+        SendToNav2:
+          type: ActionNode
+          action: "/navigate_to_pose"
+
+    dynamic_reconfigure_bt:
+      root: ReconfigureSelector
+      nodes:
+        ReconfigureSelector:
+          type: SelectorNode
+          children: [CheckIfReconfigNeeded, DoNothing]
+          
+        CheckIfReconfigNeeded:
+          type: SequenceNode
+          children: [CheckNavigationProgress, ApplyReconfiguration]
+          
+        CheckNavigationProgress:
+          type: SelectorNode
+          children: [CheckStuck, CheckTooFar, CheckTakingTooLong]
+          
+        CheckStuck:
+          type: ConditionNode
+          service: "/check_navigation_stuck"
+          parameters:
+            stuck_time_threshold: 5.0
+            
+        CheckTooFar:
+          type: ConditionNode
+          service: "/check_distance_to_goal"
+          parameters:
+            distance_threshold: 2.0
+            time_in_threshold: 10.0  # Been far for 10+ seconds
+            
+        CheckTakingTooLong:
+          type: ConditionNode
+          service: "/check_navigation_timeout"
+          parameters:
+            timeout_threshold: 30.0
+            
+        ApplyReconfiguration:
+          type: SelectorNode
+          children: [CriticalGoalReconfig, NormalGoalReconfig]
+          
+        CriticalGoalReconfig:
+          type: SequenceNode
+          children: [IsCriticalGoal, ApplyCriticalParams]
+          
+        IsCriticalGoal:
+          type: ConditionNode
+          topic: "/goal_criticality"
+          expected_value: true
+          
+        ApplyCriticalParams:
+          type: ActionNode
+          service: "/global_costmap/global_costmap/set_parameters"
+          parameters:
+            - name: "inflation_layer.inflation_radius"
+              value: 0.25  # Very small for stuck critical goals
+              
+        NormalGoalReconfig:
+          type: ActionNode
+          service: "/global_costmap/global_costmap/set_parameters"
+          parameters:
+            - name: "inflation_layer.inflation_radius"
+              value: 0.35  # Smaller for stuck normal goals
+              
+        DoNothing:
+          type: ActionNode
+          action: "/no_reconfigure_needed"
