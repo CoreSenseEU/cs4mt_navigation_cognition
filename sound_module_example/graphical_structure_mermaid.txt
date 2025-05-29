@@ -1,0 +1,73 @@
+graph TD
+    A[Main Launch File<br/>cs4home_sound.launch.py] --> B[Sound Master Node]
+    A --> C[Hardware Nodes]
+    A --> D[Visualization Nodes]
+    
+    B --> E[Sound Recognition Module]
+    B --> F[Sound Supervision Module]
+    B --> G[Sound Context Evaluation Module]
+    B --> H[Human Assistance Module]
+    B --> I[Emergency Action Module]
+    
+    C --> J[Audio Input Node<br/>/audio topics]
+    C --> K[Microphone Array Node<br/>/audio/channel0-5]
+    C --> L[DOA Node<br/>/doa]
+    C --> M[SED Node<br/>/sed]
+    
+    E --> N[Sound Recognition Core<br/>sound_recognition_bt]
+    E --> O[Audio Processing Pipeline]
+    
+    F --> P[Sound Supervision Core<br/>sound_supervision_bt]
+    
+    G --> Q[Context Evaluation Core<br/>sound_context_evaluation]
+    G --> R[YOLO Integration<br/>/yolo/detections]
+    
+    H --> S[Human Assistance Core<br/>human_assistance_bt]
+    
+    I --> T[Emergency Core<br/>emergency_bt]
+    
+    D --> U[RViz Visualization]
+    D --> V[Sound Markers<br/>/sound_markers]
+    
+    %% Data Flow
+    J --> O
+    K --> O
+    L --> O
+    M --> O
+    
+    O --> W[Sound Detection<br/>/sound_detection]
+    W --> Q
+    W --> T
+    
+    R --> Q
+    Q --> X[Sound Controlled<br/>/sound_controlled]
+    
+    %% Cognitive Flow
+    N --> Y{Goal Evaluation}
+    Y -->|Critical| T
+    Y -->|Normal| P
+    Y -->|Assistance Needed| S
+    
+    T --> Z[Emergency Actions]
+    S --> AA[Human Interaction]
+    
+    %% Configuration Files
+    BB[sound_params.yaml] --> B
+    CC[behavior_trees/] --> N
+    CC --> P
+    CC --> S
+    CC --> T
+    
+    %% Launch Dependencies
+    DD[Audio Hardware Launch] --> C
+    EE[Vision Launch] --> R
+    FF[Navigation Launch] --> G
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style E fill:#e8f5e8
+    style F fill:#e8f5e8
+    style G fill:#e8f5e8
+    style H fill:#e8f5e8
+    style I fill:#fff3e0
+    style T fill:#ffebee
