@@ -1,0 +1,7 @@
+Master (System Level)
+├── CognitiveModule 1 (Navigation)
+│   ├── Core, Afferent, Efferent, Meta, Coupling
+├── CognitiveModule 2 (Manipulation)  
+│   ├── Core, Afferent, Efferent, Meta, Coupling
+└── CognitiveModule 3 (Interaction)
+    ├── Core, Afferent, Efferent, Meta, Coupling

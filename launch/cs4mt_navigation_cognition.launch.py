@@ -17,7 +17,8 @@ def generate_launch_description():
         default_value='',
         description='Namespace')
 
-    # Specify the actions
+    # Executable Actions for nthis nodule  here
+    # Leaiongthis empty for now to get the structure proper first
     
 
     # Create the launch description and populate
