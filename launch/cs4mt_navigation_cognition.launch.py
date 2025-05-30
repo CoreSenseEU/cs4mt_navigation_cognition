@@ -68,10 +68,27 @@ def generate_launch_description():
         #     ('/detections', '/processed_detections')
         # ]
     )
+
+    goal_cognition_cmd = Node(
+    package='cs4mt_navigation_cognition',
+    executable='goal_cognition_module',
+    name='goal_cognition',
+    output='screen',
+    parameters=[config_file],
+    )
+
+    dynamic_reconfig_cmd = Node(
+        package='cs4mt_navigation_cognition',
+        executable='dynamic_reconfigure_nav_module',
+        name='dynamic_reconfigure_nav',
+        output='screen',
+        parameters=[config_file],
+    )
     
     # Create the launch description and populate
     ld = LaunchDescription()
     ld.add_action(declare_namespace_cmd)
-    ld.add_action(cm1_cmd)
+    ld.add_action(goal_cognition_cmd )
+    ld.add_action(dynamic_reconfig_cmd)
     
     return ld

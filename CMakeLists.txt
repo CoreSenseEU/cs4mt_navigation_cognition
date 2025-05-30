@@ -38,6 +38,20 @@ add_executable(MTNavigationCognitiveModule
   src/MTNavigationCognitiveModule.cpp
 )
 
+## I am adding setparate executables just so that I can keep trakc later integrate into one shingle 
+# Goal Cognition executable
+add_executable(goal_cognition_module src/MTNavigationGoalCognitionModule.cpp)
+ament_target_dependencies(goal_cognition_module ${dependencies})
+install(TARGETS goal_cognition_module
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Dynamic Reconfigure Nav executable
+add_executable(dynamic_reconfigure_nav_module src/DynamicReconfigureNavModule.cpp)
+ament_target_dependencies(dynamic_reconfigure_nav_module ${dependencies})
+install(TARGETS dynamic_reconfigure_nav_module
+  DESTINATION lib/${PROJECT_NAME}
+)
 # Link dependencies to the executable
 ament_target_dependencies(MTNavigationCognitiveModule ${dependencies})
 
