@@ -22,12 +22,12 @@ goal_cognition:
 dynamic_reconfigure_nav:
   ros__parameters:
     core: dynamic_reconfigure_nav_bt
-    afferent: nav_input
-    nav_input:
+    afferent: nav2_input
+    nav2_input:
       topics: ["/navigate_to_pose/feedback", "/goal_criticality"]
       types: ["nav2_msgs/action/NavigateToPose", "std_msgs/msg/Bool"]
-    efferent: nav_params
-    nav_params:
+    efferent: nav2_params
+    nav2_params:
       topics: ["/global_costmap/set_parameters", "/local_costmap/set_parameters"]
       types: ["rcl_interfaces/srv/SetParameters", "rcl_interfaces/srv/SetParameters"]
     parameters:

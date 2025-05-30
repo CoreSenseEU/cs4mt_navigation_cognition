@@ -1,3 +1,33 @@
+##################################################################
+# Copyright 2024 Intelligent Robotics Lab
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##################################################################
+
+# Copyright 2025 IMR Robotics & Automation Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##################################################################
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -9,29 +39,39 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    namespace = LaunchConfiguration('namespace')
+    #namespace = LaunchConfiguration('namespace')
+    
+    # Get package directories
     pkg_dir = get_package_share_directory('cs4mt_navigation_cognition')
-
+    core_pkg_dir = get_package_share_directory('cs4home_core')
+    
+    # Path to config file
+    config_file = os.path.join(core_pkg_dir, 'config', 'startup_simple_1.yaml')
+    
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace',
         default_value='',
-        description='Namespace')
-
-    # Executable Actions for nthis nodule  here
-    # Leaiongthis empty for now to get the structure proper first
+        description='Namespace'
+    )
     
-
+    # CognitiveModule node with configuration
+    cm1_cmd = Node(
+        package='cs4mt_navigation_cognition',
+        executable='MTNavigationCognitiveModule',
+        name='navigation_cognitive_module',
+        #namespace=namespace,
+        output='screen',
+        #parameters=[config_file],
+        # Optional: Add remappings if needed
+        # remappings=[
+        #     ('/image_raw', '/camera/image_raw'),
+        #     ('/detections', '/processed_detections')
+        # ]
+    )
+    
     # Create the launch description and populate
     ld = LaunchDescription()
-
     ld.add_action(declare_namespace_cmd)
-
-    # Declare the launch options
-    #ld.add_action(cm1_cmd)
-    #ld.add_action(cm2_cmd)
-    #ld.add_action(cm3_cmd)
-    #ld.add_action(cm4_cmd)
-    #ld.add_action(cm5_cmd)
-    #ld.add_action(m_cmd)
-
+    ld.add_action(cm1_cmd)
+    
     return ld
