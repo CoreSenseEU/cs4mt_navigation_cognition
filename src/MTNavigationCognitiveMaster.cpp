@@ -15,6 +15,8 @@
 // limitations under the License.
 ////////////////////////////////////////////////////////////////////
 
+///// Main orchestroator node for Navigation cognition at least now tfor the Manfuacturing testbed use-case ///
+
 #include "cs4home_core/Master.hpp"
 #include "cs4home_core/Flow.hpp"
 #include "lifecycle_msgs/srv/change_state.hpp"
@@ -32,10 +34,31 @@ class MTNavigationCognitiveMaster : public cs4home_core::Master {
 public:
   explicit MTNavigationCognitiveMaster(
       const rclcpp::NodeOptions &options = rclcpp::NodeOptions())
-      : cs4home_core::CognitiveModule("cs4mt_navigation_cog_master", options) {
+      : cs4home_core::Master("cs4mt_navigation_cog_master", options) {
     RCLCPP_INFO(this->get_logger(), "Master for Navigation Cognitive module for MT - initialized");
   }
 };
+
+CallbackReturnT on_activate(const rclcpp_lifecycle::State &state) override {
+    if (!flows_.empty()) {
+
+      for (const auto &flow : flows_) {
+
+        std::string key = flow.first;
+        auto value = flow.second;
+
+        RCLCPP_INFO(this->get_logger(), "%s", key.c_str());
+
+        for (const auto &node : value->get_flow()) {
+          RCLCPP_INFO(this->get_logger(), "%s", node.c_str());
+        }
+      }
+
+    } else {
+      RCLCPP_WARN(this->get_logger(), "No flow :(");
+    }
+    return CallbackReturnT::SUCCESS;
+  }
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
