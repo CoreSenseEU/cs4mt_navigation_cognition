@@ -1,9 +1,9 @@
-navigation_cognition_master:
+cs4mt_navigation_cognition_master:
   ros__parameters:
     flows: [nav_cognition_flow]
-    nav_cognition_flow: [goal_cognition, dynamic_reconfigure_nav]
+    nav_cognition_flow: [nav_goal_cognition, dynamic_reconfigure_nav]
 
-goal_cognition:
+nav_goal_cognition:
   ros__parameters:
     core: bt_navigator
     afferent: goal_input

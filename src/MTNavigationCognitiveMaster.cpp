@@ -34,7 +34,7 @@ class MTNavigationCognitiveMaster : public cs4home_core::Master {
 public:
   explicit MTNavigationCognitiveMaster(
       const rclcpp::NodeOptions &options = rclcpp::NodeOptions())
-      : cs4home_core::Master("cs4mt_navigation_cog_master", options) {
+      : cs4home_core::Master("cs4mt_navigation_cognition_master", options) {
     RCLCPP_INFO(this->get_logger(), "Master for Navigation Cognitive module for MT - initialized");
   }
 };
