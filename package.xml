@@ -3,24 +3,42 @@
 <package format="3">
   <name>cs4mt_navigation_cognition</name>
   <version>0.0.1</version>
-  <description>Navigation cognition structure for CS</description>
+  <description>Navigation cognition structure for CS4 Manufacturing Testbed</description>
   <maintainer email="keerthi.sagar@imr.ie">KeerthiS</maintainer>
-  <license>Apache License, Version 2.0</license>
+  <license>Apache-2.0</license>
+
+  <!-- Build tool dependencies -->
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <depend>cs4home_core</depend>
+
+  <!-- Core ROS 2 dependencies -->
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
+  <depend>rclcpp_action</depend>
   <depend>rclcpp_components</depend>
+
+  <!-- CS4Home core framework -->
+  <depend>cs4home_core</depend>
+
+  <!-- Message and service dependencies -->
+  <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>nav2_msgs</depend>
+  <depend>lifecycle_msgs</depend>
+  <depend>rcl_interfaces</depend>
+
+  <!-- Transform dependencies -->
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
   <depend>tf2_geometry_msgs</depend>
 
+  <!-- Behavior Tree dependency -->
+  <depend>behaviortree_cpp_v3</depend>
+
+  <!-- Test dependencies -->
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
-  <test_depend>ament_lint_auto</test_depend>  
 
-  
   <export>
     <build_type>ament_cmake</build_type>
   </export>

@@ -21,7 +21,7 @@
 
 class NavGoalCognitionModule : public cs4home_core::CognitiveModule {
 public:
-  explicit GoalCognitionModule(
+  explicit NavGoalCognitionModule(
       const rclcpp::NodeOptions &options = rclcpp::NodeOptions())
       : cs4home_core::CognitiveModule("nav_goal_cognition", options) { // Pay close attention, the "nav_goal_cognition" name should match
       //with params.yaml in config, be careful and dont fuck up
@@ -31,7 +31,7 @@ public:
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<GoalCognitionModule>();
+  auto node = std::make_shared<NavGoalCognitionModule>();
   rclcpp::spin(node->get_node_base_interface());
   rclcpp::shutdown();
   return 0;

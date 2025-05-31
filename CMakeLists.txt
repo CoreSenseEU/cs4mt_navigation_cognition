@@ -8,14 +8,15 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
-find_package(cs4home_core REQUIRED)  # Add this - you're using it
+find_package(cs4home_core REQUIRED) 
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
-# find_package(sound_msgs REQUIRED)  # Uncomment if you have this
+find_package(lifecycle_msgs REQUIRED)
+
 
 set(dependencies
   rclcpp
@@ -25,7 +26,6 @@ set(dependencies
   behaviortree_cpp_v3
   cs4home_core  
   geometry_msgs
-  # sound_msgs  # Uncomment if you have this
   tf2
   tf2_ros
   tf2_geometry_msgs 
@@ -33,27 +33,38 @@ set(dependencies
   visualization_msgs
 )
 
+
+
+
+
+## First add master similar to sound project- but in there they just had a file called master.cpp.
+## TODO: Clarify if this is the right approach
+# Master executable, see
+add_executable(MTNavigationCognitiveMaster
+  src/MTNavigationCognitiveMaster.cpp
+)
+ament_target_dependencies(MTNavigationCognitiveMaster ${dependencies})
+#ament_target_dependencies(mt_navigation_cognitive_master ${dependencies})
 # Create the executable from your source file
 add_executable(MTNavigationCognitiveModule 
   src/MTNavigationCognitiveModule.cpp
 )
-
+ament_target_dependencies(MTNavigationCognitiveModule ${dependencies})
 ## I am adding setparate executables just so that I can keep trakc later integrate into one shingle 
 # Goal Cognition executable
-add_executable(goal_cognition_module src/MTNavigationGoalCognitionModule.cpp)
-ament_target_dependencies(goal_cognition_module ${dependencies})
-install(TARGETS goal_cognition_module
-  DESTINATION lib/${PROJECT_NAME}
-)
+# add_executable(nav_goal_cognition_module src/MTNavigationGoalCognitionModule.cpp)
+# ament_target_dependencies(nav_goal_cognition_module ${dependencies})
+# install(TARGETS nav_goal_cognition_module
+#   DESTINATION lib/${PROJECT_NAME}
+# )
 
-# Dynamic Reconfigure Nav executable
-add_executable(dynamic_reconfigure_nav_module src/DynamicReconfigureNavModule.cpp)
-ament_target_dependencies(dynamic_reconfigure_nav_module ${dependencies})
-install(TARGETS dynamic_reconfigure_nav_module
-  DESTINATION lib/${PROJECT_NAME}
-)
-# Link dependencies to the executable
-ament_target_dependencies(MTNavigationCognitiveModule ${dependencies})
+# # Dynamic Reconfigure Nav executable
+# add_executable(dynamic_reconfigure_nav_module src/DynamicReconfigureNavModule.cpp)
+# ament_target_dependencies(dynamic_reconfigure_nav_module ${dependencies})
+# install(TARGETS dynamic_reconfigure_nav_module
+#   DESTINATION lib/${PROJECT_NAME}
+# )
+
 
 # Install directories
 install(DIRECTORY
@@ -66,8 +77,9 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/launch/
 )
 
-# Install the executable (CORRECTED)
+# Install the executable
 install(TARGETS MTNavigationCognitiveModule
+  MTNavigationCognitiveMaster
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -2,7 +2,7 @@ cs4mt_navigation_cognition_master:
   ros__parameters:
     flows: [nav_cognition_flow]
     nav_cognition_flow: [nav_goal_cognition, dynamic_reconfigure_nav]
-
+## Trying and seeing if thus way works for MT  use-case in CS
 nav_goal_cognition:
   ros__parameters:
     core: bt_navigator
@@ -15,10 +15,11 @@ nav_goal_cognition:
       topics: ["/navigate_to_pose/goal", "/goal_criticality"]
       types: ["nav2_msgs/action/NavigateToPose", "std_msgs/msg/Bool"]
     parameters:
-      # Define critical zones or goal types
+      # Define critical zones or goal types - Fixed: ensure all numbers are same type
       critical_zones: [[10.0, 5.0, 2.0]]  # [x, y, radius] - areas where goals are critical
       emergency_keywords: ["emergency", "urgent", "critical"]
-
+## Set params works, but need to see if hard values can be replaced with something more linearly scaling with respect to threshold to hoal,
+## TODO: check if this is the right approach, come back to this
 dynamic_reconfigure_nav:
   ros__parameters:
     core: dynamic_reconfigure_nav_bt
@@ -31,7 +32,7 @@ dynamic_reconfigure_nav:
       topics: ["/global_costmap/set_parameters", "/local_costmap/set_parameters"]
       types: ["rcl_interfaces/srv/SetParameters", "rcl_interfaces/srv/SetParameters"]
     parameters:
-      # Thresholds for triggering reconfiguration
+      # Thresholds for triggering reconfiguration - Fixed: ensure consistent decimal notation
       distance_threshold: 2.0  # meters - if still this far from goal
       time_threshold: 30.0     # seconds - if taking too long
       stuck_threshold: 5.0     # seconds - if not making progress
@@ -126,15 +127,13 @@ behavior_trees:
           type: ActionNode
           service: "/global_costmap/global_costmap/set_parameters"
           parameters:
-            - name: "inflation_layer.inflation_radius"
-              value: 0.25  # Very small for stuck critical goals
+            inflation_radius: 0.25  # Very small for stuck critical goals
               
         NormalGoalReconfig:
           type: ActionNode
           service: "/global_costmap/global_costmap/set_parameters"
           parameters:
-            - name: "inflation_layer.inflation_radius"
-              value: 0.35  # Smaller for stuck normal goals
+            inflation_radius: 0.35  # Smaller for stuck normal goals
               
         DoNothing:
           type: ActionNode
