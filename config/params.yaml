@@ -8,12 +8,12 @@ nav_goal_cognition:
     core: bt_navigator
     afferent: goal_input
     goal_input:
-      topics: ["/goal_pose", "/critical_goal"]
-      types: ["geometry_msgs/msg/PoseStamped", "std_msgs/msg/Bool"]
+      topics: ["/critical_goal"] ### I am removing the absolute goal pose and trying simple version
+      types: ["std_msgs/msg/Bool"]
     efferent: goal_output
     goal_output:
-      topics: ["/navigate_to_pose/goal", "/goal_criticality"]
-      types: ["nav2_msgs/action/NavigateToPose", "std_msgs/msg/Bool"]
+      topics: ["/goal_criticality"]
+      types: [ "std_msgs/msg/Bool"] ## Extremely simple behaviour
     parameters:
       # Define critical zones or goal types - Fixed: ensure all numbers are same type
       critical_zones: [[10.0, 5.0, 2.0]]  # [x, y, radius] - areas where goals are critical
@@ -25,8 +25,8 @@ dynamic_reconfigure_nav:
     core: dynamic_reconfigure_nav_bt
     afferent: nav2_input
     nav2_input:
-      topics: ["/navigate_to_pose/feedback", "/goal_criticality"]
-      types: ["nav2_msgs/action/NavigateToPose", "std_msgs/msg/Bool"]
+      topics: ["/goal_criticality"]
+      types: ["std_msgs/msg/Bool"]
     efferent: nav2_params
     nav2_params:
       topics: ["/global_costmap/set_parameters", "/local_costmap/set_parameters"]
@@ -37,104 +37,62 @@ dynamic_reconfigure_nav:
       time_threshold: 30.0     # seconds - if taking too long
       stuck_threshold: 5.0     # seconds - if not making progress
       # Reconfigure parameters
-      normal_inflation_radius: 0.55
-      critical_inflation_radius: 0.35
-      recovery_inflation_radius: 0.25  # Even smaller when stuck
+      # normal_inflation_radius: 0.55
+      # critical_inflation_radius: 0.35
+      # recovery_inflation_radius: 0.25  # Even smaller when stuck
+
+      # # Main feature: different inflation radii for critical vs normal goals
+      # normal_inflation_radius: 0.55      # Normal obstacle avoidance
+      # critical_inflation_radius: 0.25    # TIGHT navigation for critical goals
+      # recovery_inflation_radius: 0.15    # Emergency recovery mode
+      
+      # # Optional: progression monitoring (for future enhancements)
+      # distance_threshold: 2.0     # meters
+      # time_threshold: 30.0        # seconds
+      # stuck_threshold: 5.0        # seconds
 
 # Behavior Trees
 behavior_trees:
   ros__parameters:
     goal_cognition_bt:
-      root: GoalSequence
+      root: CriticalityPassThrough
       nodes:
-        GoalSequence:
+        CriticalityPassThrough:
           type: SequenceNode
-          children: [ReceiveGoal, EvaluateCriticality, SendToNav2]
+          children: [ReceiveCriticality, PublishCriticality]
         
-        ReceiveGoal:
-          type: ConditionNode
-          topic: "/goal_pose"
-          
-        EvaluateCriticality:
-          type: SelectorNode
-          children: [CheckCriticalFlag, CheckCriticalZone, DefaultNormal]
-          
-        CheckCriticalFlag:
+        ReceiveCriticality:
           type: ConditionNode
           topic: "/critical_goal"
-          expected_value: true
           
-        CheckCriticalZone:
-          type: ConditionNode
-          service: "/check_critical_zone"
-          
-        DefaultNormal:
+        PublishCriticality:
           type: ActionNode
-          action: "/set_normal_goal"
-          
-        SendToNav2:
-          type: ActionNode
-          action: "/navigate_to_pose"
+          action: "/publish_goal_criticality"
 
     dynamic_reconfigure_bt:
-      root: ReconfigureSelector
+      root: CostmapReconfigurer
       nodes:
-        ReconfigureSelector:
+        CostmapReconfigurer:
           type: SelectorNode
-          children: [CheckIfReconfigNeeded, DoNothing]
+          children: [HandleCriticalGoal, HandleNormalGoal]
           
-        CheckIfReconfigNeeded:
+        HandleCriticalGoal:
           type: SequenceNode
-          children: [CheckNavigationProgress, ApplyReconfiguration]
-          
-        CheckNavigationProgress:
-          type: SelectorNode
-          children: [CheckStuck, CheckTooFar, CheckTakingTooLong]
-          
-        CheckStuck:
-          type: ConditionNode
-          service: "/check_navigation_stuck"
-          parameters:
-            stuck_time_threshold: 5.0
-            
-        CheckTooFar:
-          type: ConditionNode
-          service: "/check_distance_to_goal"
-          parameters:
-            distance_threshold: 2.0
-            time_in_threshold: 10.0  # Been far for 10+ seconds
-            
-        CheckTakingTooLong:
-          type: ConditionNode
-          service: "/check_navigation_timeout"
-          parameters:
-            timeout_threshold: 30.0
-            
-        ApplyReconfiguration:
-          type: SelectorNode
-          children: [CriticalGoalReconfig, NormalGoalReconfig]
-          
-        CriticalGoalReconfig:
-          type: SequenceNode
-          children: [IsCriticalGoal, ApplyCriticalParams]
+          children: [IsCriticalGoal, ApplyCriticalCostmap]
           
         IsCriticalGoal:
           type: ConditionNode
           topic: "/goal_criticality"
           expected_value: true
           
-        ApplyCriticalParams:
+        ApplyCriticalCostmap:
           type: ActionNode
           service: "/global_costmap/global_costmap/set_parameters"
           parameters:
-            inflation_radius: 0.25  # Very small for stuck critical goals
+            inflation_radius: 0.25  # Tight navigation
               
-        NormalGoalReconfig:
+        HandleNormalGoal:
           type: ActionNode
           service: "/global_costmap/global_costmap/set_parameters"
           parameters:
-            inflation_radius: 0.35  # Smaller for stuck normal goals
-              
-        DoNothing:
-          type: ActionNode
-          action: "/no_reconfigure_needed"
+            inflation_radius: 0.55  # Normal navigation

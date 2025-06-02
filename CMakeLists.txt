@@ -16,11 +16,14 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
+find_package(rcl_interfaces REQUIRED) 
+find_package(nav2_msgs REQUIRED) 
 
 
 set(dependencies
   rclcpp
   rclcpp_lifecycle
+  rcl_interfaces
   rclcpp_action
   rclcpp_components
   behaviortree_cpp_v3
@@ -31,6 +34,8 @@ set(dependencies
   tf2_geometry_msgs 
   std_msgs
   visualization_msgs
+  lifecycle_msgs
+  nav2_msgs
 )
 
 
@@ -46,10 +51,27 @@ add_executable(MTNavigationCognitiveMaster
 ament_target_dependencies(MTNavigationCognitiveMaster ${dependencies})
 #ament_target_dependencies(mt_navigation_cognitive_master ${dependencies})
 # Create the executable from your source file
+## Follow the same naming convention as the params.yaml in the modules -> Discuss and ask if this is unified way
 add_executable(MTNavigationCognitiveModule 
   src/MTNavigationCognitiveModule.cpp
 )
 ament_target_dependencies(MTNavigationCognitiveModule ${dependencies})
+# Uncomment and add more executables as needed:
+# add_executable(SoundSupervisionCognitiveModule 
+#   src/${PROJECT_NAME}/SoundSupervisionCognitiveModule.cpp
+# )
+# Goal Cognition executable
+add_executable(nav_goal_cognition
+  src/MTNavigationGoalCognitiveModule.cpp
+)
+ament_target_dependencies(nav_goal_cognition ${dependencies})
+
+# Dynamic Reconfigure Nav executable  
+add_executable(dynamic_reconfigure_nav
+  src/MTDynamicReconfigureNavModule.cpp
+)
+ament_target_dependencies(dynamic_reconfigure_nav ${dependencies})
+
 ## I am adding setparate executables just so that I can keep trakc later integrate into one shingle 
 # Goal Cognition executable
 # add_executable(nav_goal_cognition_module src/MTNavigationGoalCognitionModule.cpp)
@@ -79,18 +101,13 @@ install(DIRECTORY
 
 # Install the executable
 install(TARGETS MTNavigationCognitiveModule
+  nav_goal_cognition
   MTNavigationCognitiveMaster
+  dynamic_reconfigure_nav
   DESTINATION lib/${PROJECT_NAME}
 )
 
-# Uncomment and add more executables as needed:
-# add_executable(SoundSupervisionCognitiveModule 
-#   src/${PROJECT_NAME}/SoundSupervisionCognitiveModule.cpp
-# )
-# ament_target_dependencies(SoundSupervisionCognitiveModule ${dependencies})
-# install(TARGETS SoundSupervisionCognitiveModule
-#   DESTINATION lib/${PROJECT_NAME}
-# )
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
