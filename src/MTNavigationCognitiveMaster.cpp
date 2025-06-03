@@ -279,40 +279,51 @@ private:
   }
   
   bool configure_and_activate_node(const std::string& node_name,
-                                  rclcpp::Client<lifecycle_msgs::srv::ChangeState>::SharedPtr client) {
-    if (!client->wait_for_service(1s)) {
-      RCLCPP_WARN(this->get_logger(), "⚠️  Service unavailable: %s", node_name.c_str());
-      return false;
-    }
-    
-    // Configure
-    auto configure_req = std::make_shared<lifecycle_msgs::srv::ChangeState::Request>();
-    configure_req->transition.id = 1; // configure
-    
-    RCLCPP_INFO(this->get_logger(), "⚙️  Configuring %s...", node_name.c_str());
-    auto config_future = client->async_send_request(configure_req);
-    if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), config_future, 5s) != 
-        rclcpp::FutureReturnCode::SUCCESS) {
-      RCLCPP_ERROR(this->get_logger(), "❌ Failed to configure %s", node_name.c_str());
-      return false;
-    }
-    
-    // Activate
-    auto activate_req = std::make_shared<lifecycle_msgs::srv::ChangeState::Request>();
-    activate_req->transition.id = 3; // activate
-    
-    RCLCPP_INFO(this->get_logger(), "🟢 Activating %s...", node_name.c_str());
-    auto activate_future = client->async_send_request(activate_req);
-    if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), activate_future, 5s) == 
-        rclcpp::FutureReturnCode::SUCCESS) {
+                                rclcpp::Client<lifecycle_msgs::srv::ChangeState>::SharedPtr client) {
+  if (!client->wait_for_service(1s)) {
+    RCLCPP_WARN(this->get_logger(), "⚠️  Service unavailable: %s", node_name.c_str());
+    return false;
+  }
+  
+  // Configure
+  auto configure_req = std::make_shared<lifecycle_msgs::srv::ChangeState::Request>();
+  configure_req->transition.id = 1; // configure
+  
+  RCLCPP_INFO(this->get_logger(), "⚙️  Configuring %s...", node_name.c_str());
+  auto config_future = client->async_send_request(configure_req);
+  
+  // Wait with timeout - NO spin_until_future_complete!
+  auto status = config_future.wait_for(5s);
+  if (status != std::future_status::ready) {
+    RCLCPP_ERROR(this->get_logger(), "❌ Failed to configure %s (timeout)", node_name.c_str());
+    return false;
+  }
+  
+  auto config_response = config_future.get();
+  if (!config_response || !config_response->success) {
+    RCLCPP_ERROR(this->get_logger(), "❌ Failed to configure %s", node_name.c_str());
+    return false;
+  }
+  
+  // Activate
+  auto activate_req = std::make_shared<lifecycle_msgs::srv::ChangeState::Request>();
+  activate_req->transition.id = 3; // activate
+  
+  RCLCPP_INFO(this->get_logger(), "🟢 Activating %s...", node_name.c_str());
+  auto activate_future = client->async_send_request(activate_req);
+  
+  status = activate_future.wait_for(5s);
+  if (status == std::future_status::ready) {
+    auto activate_response = activate_future.get();
+    if (activate_response && activate_response->success) {
       RCLCPP_INFO(this->get_logger(), "✅ %s ACTIVATED", node_name.c_str());
       return true;
-    } else {
-      RCLCPP_ERROR(this->get_logger(), "❌ Failed to activate %s", node_name.c_str());
-      return false;
     }
   }
   
+  RCLCPP_ERROR(this->get_logger(), "❌ Failed to activate %s", node_name.c_str());
+  return false;
+}
   void print_operational_summary() {
     RCLCPP_INFO(this->get_logger(), "🎯 === ZERO-HARDCODING COGNITIVE SYSTEM OPERATIONAL ===");
     RCLCPP_INFO(this->get_logger(), "📋 Active Flows:");
