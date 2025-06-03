@@ -1,41 +1,34 @@
 cs4mt_navigation_cognition_master:
   ros__parameters:
-    flows: [nav_cognition_flow]
-    nav_cognition_flow: [nav_goal_cognition, dynamic_reconfigure_nav]
+    flows: [nav_goal_cognitive] ## Can we use this as the namespace for a particular flow
+    nav_goal_cognitive: [nav_goal_cognitive_module] ## For  now I am just going to see the first module of just understanding about the goals
 ## Trying and seeing if thus way works for MT  use-case in CS
-nav_goal_cognition:
-  ros__parameters:
-    core: bt_navigator
-    afferent: goal_input
-    goal_input:
-      topics: ["/critical_goal"] ### I am removing the absolute goal pose and trying simple version
-      types: ["std_msgs/msg/Bool"]
-    efferent: goal_output
-    goal_output:
-      topics: ["/goal_criticality"]
-      types: [ "std_msgs/msg/Bool"] ## Extremely simple behaviour
-    parameters:
-      # Define critical zones or goal types - Fixed: ensure all numbers are same type
-      critical_zones: [[10.0, 5.0, 2.0]]  # [x, y, radius] - areas where goals are critical
-      emergency_keywords: ["emergency", "urgent", "critical"]
 ## Set params works, but need to see if hard values can be replaced with something more linearly scaling with respect to threshold to hoal,
 ## TODO: check if this is the right approach, come back to this
-dynamic_reconfigure_nav:
+## Name i am trying to stick to "cognitive" everywhere
+nav_goal_cognitive_module:
   ros__parameters:
-    core: dynamic_reconfigure_nav_bt
-    afferent: nav2_input
-    nav2_input:
-      topics: ["/goal_criticality"]
+    core: nav_goal_cognitive_core
+    afferent: nav_goal_cognitive_input
+    nav_goal_cognitive_input:
+      topics: ["/critical_goal"] ### I am removing the absolute goal pose and trying simple version
       types: ["std_msgs/msg/Bool"]
-    efferent: nav2_params
-    nav2_params:
-      topics: ["/global_costmap/set_parameters", "/local_costmap/set_parameters"]
-      types: ["rcl_interfaces/srv/SetParameters", "rcl_interfaces/srv/SetParameters"]
-    parameters:
-      # Thresholds for triggering reconfiguration - Fixed: ensure consistent decimal notation
-      distance_threshold: 2.0  # meters - if still this far from goal
-      time_threshold: 30.0     # seconds - if taking too long
-      stuck_threshold: 5.0     # seconds - if not making progress
+    efferent: nav_goal_cognitive_output
+    nav_goal_cognitive_output:
+      topics: ["/goal_criticality"]
+      types: [ "std_msgs/msg/Bool"] ## Extremely simple behaviour, just keep this for now
+    # parameters:
+    #   # Define critical zones or goal types - Fixed: ensure all numbers are same type    #   
+    #   emergency_keywords: ["emergency", "urgent", "critical"]
+    # efferent: nav_goal_cognitive_output
+    # nav_goal_cognitive_output:
+    #   topics: ["/global_costmap/set_parameters", "/local_costmap/set_parameters"]
+    #   types: ["rcl_interfaces/srv/SetParameters", "rcl_interfaces/srv/SetParameters"]
+    # parameters:
+    #   # Thresholds for triggering reconfiguration - Fixed: ensure consistent decimal notation
+    #   distance_threshold: 2.0  # meters - if still this far from goal
+    #   time_threshold: 30.0     # seconds - if taking too long
+    #   stuck_threshold: 5.0     # seconds - if not making progress
       # Reconfigure parameters
       # normal_inflation_radius: 0.55
       # critical_inflation_radius: 0.35

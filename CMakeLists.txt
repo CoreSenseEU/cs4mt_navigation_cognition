@@ -52,25 +52,21 @@ ament_target_dependencies(MTNavigationCognitiveMaster ${dependencies})
 #ament_target_dependencies(mt_navigation_cognitive_master ${dependencies})
 # Create the executable from your source file
 ## Follow the same naming convention as the params.yaml in the modules -> Discuss and ask if this is unified way
-add_executable(MTNavigationCognitiveModule 
-  src/MTNavigationCognitiveModule.cpp
-)
-ament_target_dependencies(MTNavigationCognitiveModule ${dependencies})
 # Uncomment and add more executables as needed:
 # add_executable(SoundSupervisionCognitiveModule 
 #   src/${PROJECT_NAME}/SoundSupervisionCognitiveModule.cpp
 # )
 # Goal Cognition executable
-add_executable(nav_goal_cognition
+add_executable(nav_goal_cognitive_module
   src/MTNavigationGoalCognitiveModule.cpp
 )
-ament_target_dependencies(nav_goal_cognition ${dependencies})
+ament_target_dependencies(nav_goal_cognitive_module ${dependencies})
 
 # Dynamic Reconfigure Nav executable  
-add_executable(dynamic_reconfigure_nav
-  src/MTDynamicReconfigureNavModule.cpp
-)
-ament_target_dependencies(dynamic_reconfigure_nav ${dependencies})
+#add_executable(dynamic_reconfigure_nav
+#  src/MTDynamicReconfigureNavModule.cpp
+#)
+#ament_target_dependencies(dynamic_reconfigure_nav ${dependencies})
 
 ## I am adding setparate executables just so that I can keep trakc later integrate into one shingle 
 # Goal Cognition executable
@@ -100,10 +96,10 @@ install(DIRECTORY
 )
 
 # Install the executable
-install(TARGETS MTNavigationCognitiveModule
-  nav_goal_cognition
+install(TARGETS
+  nav_goal_cognitive_module
   MTNavigationCognitiveMaster
-  dynamic_reconfigure_nav
+  #dynamic_reconfigure_nav
   DESTINATION lib/${PROJECT_NAME}
 )
 

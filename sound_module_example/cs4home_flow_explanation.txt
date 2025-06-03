@@ -1,0 +1,30 @@
+////////////////////////////////////////////////////////////////////
+// CS4Home Component Loading Mechanism Explanation
+////////////////////////////////////////////////////////////////////
+
+/*
+How CS4Home CognitiveModule loads components:
+
+1. CognitiveModule reads parameters:
+   - core: "navigation_goal_cognition"
+   - afferent: "goal_input_afferent" 
+   - efferent: "goal_output_efferent"
+
+2. For each component, it tries to load a shared library:
+   - Core: tries to load "libnavigation_goal_cognition.so"
+   - Afferent: tries to load "libgoal_input_afferent.so"
+   - Efferent: tries to load "libgoal_output_efferent.so"
+
+3. In each library, it looks for a factory function called "create_instance"
+
+4. The CS_REGISTER_COMPONENT macro creates this factory function automatically
+
+So the flow is:
+params.yaml specifies component name → CognitiveModule loads lib{name}.so → calls create_instance()
+*/
+
+// Example of what CS_REGISTER_COMPONENT(NavigationGoalCognition) generates:
+extern "C" cs4home_core::Core::SharedPtr create_instance(
+    rclcpp_lifecycle::LifecycleNode::SharedPtr parent) {
+  return std::make_shared<NavigationGoalCognition>(parent);
+}
