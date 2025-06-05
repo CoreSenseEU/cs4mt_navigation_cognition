@@ -45,10 +45,10 @@ set(dependencies
 ## First add master similar to sound project- but in there they just had a file called master.cpp.
 ## TODO: Clarify if this is the right approach
 # Master executable, see
-add_executable(MTNavigationCognitiveMaster
+add_executable(mt_navigation_cognitive_master
   src/MTNavigationCognitiveMaster.cpp
 )
-ament_target_dependencies(MTNavigationCognitiveMaster ${dependencies})
+ament_target_dependencies(mt_navigation_cognitive_master ${dependencies})
 #ament_target_dependencies(mt_navigation_cognitive_master ${dependencies})
 # Create the executable from your source file
 ## Follow the same naming convention as the params.yaml in the modules -> Discuss and ask if this is unified way
