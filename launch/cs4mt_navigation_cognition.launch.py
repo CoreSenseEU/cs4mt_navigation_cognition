@@ -84,6 +84,14 @@ def generate_launch_description():
         output='screen',
         parameters=[config_file],
     )
+
+    cognitive_module_cmd = Node(
+    package='cs4mt_navigation_cognition',
+    executable='nav_goal_cognitive_module',  
+    name='nav_goal_cognitive_module',
+    output='screen',
+    parameters=[config_file],
+    )
     # goal_cognition_cmd = Node(
     # package='cs4mt_navigation_cognition',
     # executable='goal_cognition_module',
@@ -104,8 +112,6 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(declare_namespace_cmd)
     ld.add_action(master_cmd) # Laujnch the master node for the navigation cog
-    #ld.add_action(cm1_cmd)
-    #ld.add_action(goal_cognition_cmd )
-    # ld.add_action(dynamic_reconfig_cmd)
+    ld.add_action(cognitive_module_cmd)
     
     return ld

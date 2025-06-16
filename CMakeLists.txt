@@ -19,9 +19,7 @@ find_package(lifecycle_msgs REQUIRED)
 find_package(rcl_interfaces REQUIRED) 
 find_package(nav2_msgs REQUIRED) 
 
-
 set(dependencies
-  ament_cmake
   rclcpp
   rclcpp_lifecycle
   rcl_interfaces
@@ -39,64 +37,56 @@ set(dependencies
   nav2_msgs
 )
 
-
-
-set(SOURCES
-  src/${PROJECT_NAME}/MTNavigationGoalCognitiveModule.cpp
-  src/${PROJECT_NAME}/MTNavigationCognitiveMaster.cpp
-)
-
-
-## Same structure as SoundExample
+## COMPONENT LIBRARIES FOR cs4home_core
 
 # CORE
 add_library(nav_goal_cognitive_core SHARED src/MTNavigationGoalCognitiveCore.cpp)
-ament_target_dependencies(nav_goal_cognitive_core  ${dependencies} ${test_dependencies})
+ament_target_dependencies(nav_goal_cognitive_core ${dependencies} ${test_dependencies})
 target_link_libraries(nav_goal_cognitive_core)
 
-
-
 # AFFERENT
-
-
 add_library(nav_goal_cognitive_input SHARED src/MTNavigationGoalCognitiveInput.cpp)
-ament_target_dependencies(nav_goal_cognitive_input  ${dependencies} ${test_dependencies})
+ament_target_dependencies(nav_goal_cognitive_input ${dependencies} ${test_dependencies})
 target_link_libraries(nav_goal_cognitive_input)
 
+# EFFERENT (when you create it)
+add_library(nav_goal_cognitive_output SHARED src/MTNavigationGoalCognitiveOutput.cpp)
+ament_target_dependencies(nav_goal_cognitive_output ${dependencies})
+target_link_libraries(nav_goal_cognitive_core)
 
-
-# EFFERENT
-
-
-#add_library(cs4mt_navigation_cognition_output SHARED src/MTNavigationGoalCognitiveOutput.cpp)
-#ament_target_dependencies(cs4mt_navigation_cognition_output  ${dependencies} ${test_dependencies})
-#target_link_libraries(cs4mt_navigation_cognition_output)
-
-
-
-# META
-
-
-
-# COUPLING
-
-
-
-# Module 
+## EXECUTABLES
 
 # Goal Cognition module - Executable
 add_executable(nav_goal_cognitive_module
   src/MTNavigationGoalCognitiveModule.cpp
 )
-ament_target_dependencies(nav_goal_cognitive_module ${dependencies})
+ament_target_dependencies(nav_goal_cognitive_module ${dependencies} ${test_dependencies})
 
-
-# MASTER here
+# MASTER
 add_executable(navigation_cognitive_master
   src/MTNavigationCognitiveMaster.cpp
 )
-ament_target_dependencies(navigation_cognitive_master ${dependencies})
+ament_target_dependencies(navigation_cognitive_master ${dependencies} ${test_dependencies})
 
+## INSTALLATION
+
+# Install component libraries
+install(TARGETS
+  nav_goal_cognitive_core
+  nav_goal_cognitive_input
+  nav_goal_cognitive_output
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+# Install executables
+# Modules and master file are executables
+install(TARGETS
+  nav_goal_cognitive_module
+  navigation_cognitive_master
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 # Install directories
 install(DIRECTORY
@@ -108,27 +98,6 @@ install(DIRECTORY
   launch/
   DESTINATION share/${PROJECT_NAME}/launch/
 )
-
-
-# Install libraries here
-# Install component libraries (CRITICAL - was missing!)
-install(TARGETS
-  nav_goal_cognitive_core
-  nav_goal_cognitive_input
-  # nav_goal_cognitive_output
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
-
-# Install the executable
-install(TARGETS
-  nav_goal_cognitive_module
-  navigation_cognitive_master
-  #dynamic_reconfigure_nav
-  DESTINATION lib/${PROJECT_NAME}
-)
-
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

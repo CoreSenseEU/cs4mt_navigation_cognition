@@ -23,6 +23,7 @@
 
 #include "rclcpp/macros.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include "rclcpp_components/register_node_macro.hpp"
 
 /**
  * @class nav_goal_cognitive_input - Template from PAL and IRJC Sound module

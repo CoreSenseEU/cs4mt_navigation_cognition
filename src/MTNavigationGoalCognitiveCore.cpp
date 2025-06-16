@@ -19,6 +19,7 @@
 #include "std_msgs/msg/bool.hpp"
 #include "rclcpp/macros.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include "rclcpp_components/register_node_macro.hpp"
 
 #include <unordered_map>
 #include <chrono>
