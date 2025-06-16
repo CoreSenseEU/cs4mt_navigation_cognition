@@ -91,7 +91,8 @@ public:
     enhanced_goal->data = enhanced_criticality;
     
     // Publish through efferent component
-    efferent_->publish(0, enhanced_goal);
+    // TODO uncomment this
+    //efferent_->publish(0, enhanced_goal);
     
     RCLCPP_INFO(parent_->get_logger(),
                "📤 [NavigationGoalCognition] Published enhanced criticality: %s",
@@ -353,7 +354,7 @@ public:
    */
   bool activate() override {
     timer_ = parent_->create_wall_timer(
-        100ms, std::bind(&NavigationGoalCognition::timer_callback, this));
+        100ms, std::bind(&NavigationGoalCognitiveCore::timer_callback, this));
     
     RCLCPP_INFO(parent_->get_logger(), "🟢 [NavigationGoalCognition] Core activated");
     return true;

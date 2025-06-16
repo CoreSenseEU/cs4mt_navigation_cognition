@@ -21,6 +21,7 @@ find_package(nav2_msgs REQUIRED)
 
 
 set(dependencies
+  ament_cmake
   rclcpp
   rclcpp_lifecycle
   rcl_interfaces
@@ -40,48 +41,61 @@ set(dependencies
 
 
 
-
-
-## First add master similar to sound project- but in there they just had a file called master.cpp.
-## TODO: Clarify if this is the right approach
-# Master executable, see
-add_executable(mt_navigation_cognitive_master
-  src/MTNavigationCognitiveMaster.cpp
+set(SOURCES
+  src/${PROJECT_NAME}/MTNavigationGoalCognitiveModule.cpp
+  src/${PROJECT_NAME}/MTNavigationCognitiveMaster.cpp
 )
-ament_target_dependencies(mt_navigation_cognitive_master ${dependencies})
-#ament_target_dependencies(mt_navigation_cognitive_master ${dependencies})
-# Create the executable from your source file
-## Follow the same naming convention as the params.yaml in the modules -> Discuss and ask if this is unified way
-# Uncomment and add more executables as needed:
-# add_executable(SoundSupervisionCognitiveModule 
-#   src/${PROJECT_NAME}/SoundSupervisionCognitiveModule.cpp
-# )
-# Goal Cognition executable
+
+
+## Same structure as SoundExample
+
+# CORE
+add_library(nav_goal_cognitive_core SHARED src/MTNavigationGoalCognitiveCore.cpp)
+ament_target_dependencies(nav_goal_cognitive_core  ${dependencies} ${test_dependencies})
+target_link_libraries(nav_goal_cognitive_core)
+
+
+
+# AFFERENT
+
+
+add_library(nav_goal_cognitive_input SHARED src/MTNavigationGoalCognitiveInput.cpp)
+ament_target_dependencies(nav_goal_cognitive_input  ${dependencies} ${test_dependencies})
+target_link_libraries(nav_goal_cognitive_input)
+
+
+
+# EFFERENT
+
+
+#add_library(cs4mt_navigation_cognition_output SHARED src/MTNavigationGoalCognitiveOutput.cpp)
+#ament_target_dependencies(cs4mt_navigation_cognition_output  ${dependencies} ${test_dependencies})
+#target_link_libraries(cs4mt_navigation_cognition_output)
+
+
+
+# META
+
+
+
+# COUPLING
+
+
+
+# Module 
+
+# Goal Cognition module - Executable
 add_executable(nav_goal_cognitive_module
   src/MTNavigationGoalCognitiveModule.cpp
 )
 ament_target_dependencies(nav_goal_cognitive_module ${dependencies})
 
-# Dynamic Reconfigure Nav executable  
-#add_executable(dynamic_reconfigure_nav
-#  src/MTDynamicReconfigureNavModule.cpp
-#)
-#ament_target_dependencies(dynamic_reconfigure_nav ${dependencies})
 
-## I am adding setparate executables just so that I can keep trakc later integrate into one shingle 
-# Goal Cognition executable
-# add_executable(nav_goal_cognition_module src/MTNavigationGoalCognitionModule.cpp)
-# ament_target_dependencies(nav_goal_cognition_module ${dependencies})
-# install(TARGETS nav_goal_cognition_module
-#   DESTINATION lib/${PROJECT_NAME}
-# )
-
-# # Dynamic Reconfigure Nav executable
-# add_executable(dynamic_reconfigure_nav_module src/DynamicReconfigureNavModule.cpp)
-# ament_target_dependencies(dynamic_reconfigure_nav_module ${dependencies})
-# install(TARGETS dynamic_reconfigure_nav_module
-#   DESTINATION lib/${PROJECT_NAME}
-# )
+# MASTER here
+add_executable(navigation_cognitive_master
+  src/MTNavigationCognitiveMaster.cpp
+)
+ament_target_dependencies(navigation_cognitive_master ${dependencies})
 
 
 # Install directories
@@ -95,14 +109,25 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/launch/
 )
 
+
+# Install libraries here
+# Install component libraries (CRITICAL - was missing!)
+install(TARGETS
+  nav_goal_cognitive_core
+  nav_goal_cognitive_input
+  # nav_goal_cognitive_output
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
 # Install the executable
 install(TARGETS
   nav_goal_cognitive_module
-  mt_navigation_cognitive_master
+  navigation_cognitive_master
   #dynamic_reconfigure_nav
   DESTINATION lib/${PROJECT_NAME}
 )
-
 
 
 if(BUILD_TESTING)

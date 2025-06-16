@@ -18,8 +18,8 @@
 #include "cs4home_core/Afferent.hpp"
 #include "cs4home_core/macros.hpp"
 
-#include "std_msgs/std_msgs.hpp"
-#include "audio_common_msgs/msg/audio_data.hpp"
+//#include "std_msgs/std_msgs.hpp"
+//#include "audio_common_msgs/msg/audio_data.hpp"
 
 #include "rclcpp/macros.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
@@ -31,7 +31,7 @@
  */
 class MTNavigationGoalCognitiveInput : public cs4home_core::Afferent {
 public:
-  RCLCPP_SMART_PTR_DEFINITIONS(nav_goal_cognitive_input)
+  RCLCPP_SMART_PTR_DEFINITIONS(MTNavigationGoalCognitiveInput)
 
   /**
    * @brief Constructs a Subscriber object and declares necessary

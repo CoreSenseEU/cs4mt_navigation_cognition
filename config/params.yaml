@@ -1,4 +1,4 @@
-cs4mt_navigation_cognition_master:
+navigation_cognition_master:
   ros__parameters:
     flows: [nav_goal_cognitive] ## Can we use this as the namespace for a particular flow
     nav_goal_cognitive: [nav_goal_cognitive_module] ## For  now I am just going to see the first module of just understanding about the goals
@@ -13,10 +13,10 @@ nav_goal_cognitive_module:
     nav_goal_cognitive_input:
       topics: ["/critical_goal"] ### I am removing the absolute goal pose and trying simple version
       types: ["std_msgs/msg/Bool"]
-    efferent: nav_goal_cognitive_output
-    nav_goal_cognitive_output:
-      topics: ["/goal_criticality"]
-      types: [ "std_msgs/msg/Bool"] ## Extremely simple behaviour, just keep this for now
+    #efferent: nav_goal_cognitive_output
+    #nav_goal_cognitive_output:
+    #  topics: ["/goal_criticality"]
+    #  types: [ "std_msgs/msg/Bool"] ## Extremely simple behaviour, just keep this for now
     # parameters:
     #   # Define critical zones or goal types - Fixed: ensure all numbers are same type    #   
     #   emergency_keywords: ["emergency", "urgent", "critical"]

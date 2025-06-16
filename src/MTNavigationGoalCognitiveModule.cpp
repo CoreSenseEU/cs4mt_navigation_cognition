@@ -31,9 +31,7 @@ public:
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
   
-  /* 
-  Fun stuff from Claude for visualization, ocmmeint it for now
-  */
+
   RCLCPP_INFO(rclcpp::get_logger("main"), 
             "🚀 Starting MT Navigation Goal Cognitive Module (CS4Home)");
   
