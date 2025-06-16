@@ -17,9 +17,9 @@ nav_goal_cognitive_module:
     criticality_confidence_threshold: 0.8
     
     # Required inflation radius parameters (for the efferent component)
-    normal_inflation_radius: 0.55
-    critical_inflation_radius: 0.25
-    recovery_inflation_radius: 0.15
+    normal_inflation_radius: 0.80 #0.55
+    critical_inflation_radius: 0.01 #0.25
+    recovery_inflation_radius: 0.10 #0.15
     
     nav_goal_cognitive_input:
       topics: ["/critical_goal"]

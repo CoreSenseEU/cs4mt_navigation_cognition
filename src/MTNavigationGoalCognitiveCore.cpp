@@ -93,7 +93,8 @@ public:
     
     // Publish through efferent component
     // TODO uncomment this
-    //efferent_->publish(0, enhanced_goal);
+    efferent_->publish(0, enhanced_goal);
+
     
     RCLCPP_INFO(parent_->get_logger(),
                "📤 [NavigationGoalCognition] Published enhanced criticality: %s",

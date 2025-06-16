@@ -118,6 +118,18 @@ public:
         set_costmap_inflation_radius(target_radius);
     }
 
+    void publish(size_t topic_index, const std::shared_ptr<std_msgs::msg::Bool>& msg) {
+        RCLCPP_ERROR(parent_->get_logger(), "🚨 DEBUG: Efferent publish() called with data: %s", 
+                    msg->data ? "TRUE" : "FALSE");
+        
+        Efferent::publish(topic_index, msg);
+        
+        RCLCPP_ERROR(parent_->get_logger(), "🚨 DEBUG: About to call process_criticality()");
+        process_criticality(msg);
+        
+        RCLCPP_ERROR(parent_->get_logger(), "🚨 DEBUG: Finished process_criticality()");
+    }
+
 private:
     void set_costmap_inflation_radius(double radius) {
         // Set global costmap inflation radius

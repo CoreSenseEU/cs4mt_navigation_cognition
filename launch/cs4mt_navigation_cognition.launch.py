@@ -92,6 +92,14 @@ def generate_launch_description():
     output='screen',
     parameters=[config_file],
     )
+
+    bt_navigator_cmd = Node(
+    package='nav2_bt_navigator',
+    executable='bt_navigator',
+    name='bt_navigator',
+    output='screen',
+    parameters=[config_file],  # This will load your behavior_trees config
+    )
     # goal_cognition_cmd = Node(
     # package='cs4mt_navigation_cognition',
     # executable='goal_cognition_module',
@@ -113,5 +121,6 @@ def generate_launch_description():
     ld.add_action(declare_namespace_cmd)
     ld.add_action(master_cmd) # Laujnch the master node for the navigation cog
     ld.add_action(cognitive_module_cmd)
+    ld.add_action(bt_navigator_cmd)
     
     return ld
