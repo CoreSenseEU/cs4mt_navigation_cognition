@@ -98,7 +98,7 @@ install(DIRECTORY
 # Install the executable
 install(TARGETS
   nav_goal_cognitive_module
-  MTNavigationCognitiveMaster
+  mt_navigation_cognitive_master
   #dynamic_reconfigure_nav
   DESTINATION lib/${PROJECT_NAME}
 )

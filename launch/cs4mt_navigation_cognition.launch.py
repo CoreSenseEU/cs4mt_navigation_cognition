@@ -79,8 +79,8 @@ def generate_launch_description():
     # Need to clariffy with Esteher, carlos/paco
     master_cmd = Node(
         package='cs4mt_navigation_cognition',
-        executable='MTNavigationCognitiveMaster',
-        name='cs4mt_navigation_cognition_master',
+        executable='mt_navigation_cognitive_master',
+        name='mt_navigation_cognition_master',
         output='screen',
         parameters=[config_file],
     )
