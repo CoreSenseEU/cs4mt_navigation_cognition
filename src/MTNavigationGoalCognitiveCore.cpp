@@ -17,9 +17,13 @@
 #include "cs4home_core/Core.hpp"
 #include "cs4home_core/macros.hpp"
 #include "std_msgs/msg/bool.hpp"
+#include "std_msgs/msg/int16.hpp"
 #include "rclcpp/macros.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
+#include "rcl_interfaces/srv/set_parameters.hpp"
+#include "rcl_interfaces/msg/parameter.hpp"
+#include "rcl_interfaces/msg/parameter_value.hpp"
 
 #include <unordered_map>
 #include <chrono>
@@ -90,10 +94,18 @@ public:
     // Create and publish enhanced goal message
     auto enhanced_goal = std::make_shared<std_msgs::msg::Bool>();
     enhanced_goal->data = enhanced_criticality;
-    
+
+    RCLCPP_INFO(parent_->get_logger(),"I am publishing hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     // Publish through efferent component
-    // TODO uncomment this
-    efferent_->publish(0, enhanced_goal);
+    efferent_->publish(0,enhanced_goal);
+    // SERVICE CALL: Set inflation radius based on criticality
+    double target_radius = enhanced_criticality ? 0.10 : 0.30;  // Critical = tight, Normal = standard
+    set_inflation_radius_via_service(target_radius);
+
+
+
+
+    
 
     
     RCLCPP_INFO(parent_->get_logger(),
@@ -343,6 +355,9 @@ public:
     RCLCPP_INFO(parent_->get_logger(),
                "🧠 Cognitive parameters: interval=%.2fs, persistence=%.2fs, confidence=%.2f",
                COGNITIVE_PROCESSING_INTERVAL, GOAL_PERSISTENCE_THRESHOLD, CRITICALITY_CONFIDENCE_THRESHOLD);
+    // Create service client
+    global_costmap_client_ = parent_->create_client<rcl_interfaces::srv::SetParameters>(
+        "/global_costmap/global_costmap/set_parameters");
     
     return true;
   }
@@ -376,6 +391,32 @@ public:
   }
 
 private:
+
+  rclcpp::Client<rcl_interfaces::srv::SetParameters>::SharedPtr global_costmap_client_;
+  void set_inflation_radius_via_service(double radius) {
+    RCLCPP_INFO(parent_->get_logger(), "🔧 Setting inflation radius to %.3fm", radius);
+    
+    if (!global_costmap_client_) {
+      RCLCPP_WARN(parent_->get_logger(), "Service client not available");
+      return;
+    }
+    
+    if (!global_costmap_client_->wait_for_service(std::chrono::seconds(1))) {
+      RCLCPP_WARN(parent_->get_logger(), "Service not available");
+      return;
+    }
+    
+    auto request = std::make_shared<rcl_interfaces::srv::SetParameters::Request>();
+    
+    rcl_interfaces::msg::Parameter param;
+    param.name = "inflation_layer.inflation_radius";
+    param.value.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE;
+    param.value.double_value = radius;
+    request->parameters.push_back(param);
+    
+    auto future = global_costmap_client_->async_send_request(request);
+    RCLCPP_INFO(parent_->get_logger(), "✅ Service call sent");
+  }
   /**
    * @brief Structure to store goal event history for cognitive analysis
    */
