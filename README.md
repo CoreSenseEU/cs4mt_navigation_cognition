@@ -146,7 +146,8 @@ cd /kmriiwa_navigation/scripts
 python3 send_multiple_goals_gazebo_with_cs.py
 
 
-
+## Basic functionality of setting inflation radius based on goal criticality
+![Reduce inflation radius at certian goals](./images/nav_cog_module_cs4mt.gif)
 
 
 
