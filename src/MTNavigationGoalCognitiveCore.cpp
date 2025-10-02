@@ -28,6 +28,10 @@
 #include <unordered_map>
 #include <chrono>
 
+// Trying distance proportional inflation radius tuning
+#include "nav_msgs/msg/path.hpp"
+#include <cmath>
+
 using std::placeholders::_1;
 using namespace std::chrono_literals;
 
@@ -55,11 +59,25 @@ public:
     this->last_check_ = parent_->get_clock()->now();
     this->goal_history_.clear();
     this->current_criticality_ = false; // I am defining this to see if the goal being critical for inflation radius
+    this->previous_criticality_ = false; // Because  i encoutntered the values should smoothly increase back for the radius
     
     // Cognitive thresholds and parameters
     this->COGNITIVE_PROCESSING_INTERVAL = 1.0; // seconds
     this->GOAL_PERSISTENCE_THRESHOLD = 3.0;    // seconds
     this->CRITICALITY_CONFIDENCE_THRESHOLD = 0.8;
+
+    // Distance based goal-cognition
+    this->NORMAL_INFLATION_RADIUS = 0.60;
+    this->CRITICAL_INFLATION_RADIUS = 0.25;
+    this->use_proportional_reduction_ = true;
+    this->reduction_start_distance_ = 3.0;
+    this->reduction_end_distance_ = 0.1;
+    this->max_reduction_percentage_ = 0.8;
+    this->radius_update_rate_ = 0.08;
+    this->min_radius_change_threshold_ = 0.02;
+
+    this->current_inflation_radius_ = NORMAL_INFLATION_RADIUS;
+    this->remaining_distance_ = -1.0;
     
     RCLCPP_INFO(parent_->get_logger(), "🧠 NavigationGoalCognition core initialized");
   }
@@ -99,8 +117,9 @@ public:
     // Publish through efferent component
     efferent_->publish(0,enhanced_goal);
     // SERVICE CALL: Set inflation radius based on criticality
-    double target_radius = enhanced_criticality ? 0.10 : 0.30;  // Critical = tight, Normal = standard
-    set_inflation_radius_via_service(target_radius);
+    //double target_radius = enhanced_criticality ? 0.40 : 0.55;  // Critical = tight, Normal = standard
+    //set_inflation_radius_via_service(target_radius);
+    update_inflation_radius_from_distance();
 
 
 
@@ -113,7 +132,18 @@ public:
                enhanced_criticality ? "CRITICAL" : "NORMAL");
     
     this->last_check_ = now;
+    // Check if criticality changed
+    bool criticality_changed = (enhanced_criticality != this->previous_criticality_);
+    this->previous_criticality_ = this->current_criticality_;
     this->current_criticality_ = enhanced_criticality;
+
+    if (criticality_changed) {
+    RCLCPP_INFO(parent_->get_logger(),
+               "🔄 Criticality changed: %s → %s, updating radius immediately",
+               previous_criticality_ ? "CRITICAL" : "NORMAL",
+               current_criticality_ ? "CRITICAL" : "NORMAL");
+    update_inflation_radius_from_distance();
+      }
   }
 
   /**
@@ -340,10 +370,73 @@ public:
    * @brief Configures the NavigationGoalCognition component.
    * @return True if configuration is successful.
    */
+  double calculate_proportional_inflation_radius(double distance, double base_radius) {
+    if (distance < 0.0 || !use_proportional_reduction_) return base_radius;
+    if (distance >= reduction_start_distance_) return base_radius;
+    if (distance <= reduction_end_distance_) return base_radius * (1.0 - max_reduction_percentage_);
+    
+    double distance_range = reduction_start_distance_ - reduction_end_distance_;
+    double progress = (reduction_start_distance_ - distance) / distance_range;
+    return base_radius * (1.0 - progress * max_reduction_percentage_);
+  }
+
+  double smooth_radius_transition(double target_radius) {
+    double alpha = radius_update_rate_;
+    double smoothed = alpha * target_radius + (1.0 - alpha) * current_inflation_radius_;
+    return (std::abs(smoothed - current_inflation_radius_) < 0.005) ? target_radius : smoothed;
+  }
+
+  void update_inflation_radius_from_distance() {
+    double base_radius = current_criticality_ ? CRITICAL_INFLATION_RADIUS : NORMAL_INFLATION_RADIUS;
+    double target_radius = calculate_proportional_inflation_radius(remaining_distance_, base_radius);
+    double smoothed_radius = smooth_radius_transition(target_radius);
+    
+    if (std::abs(smoothed_radius - current_inflation_radius_) > min_radius_change_threshold_) {
+      set_inflation_radius_via_service(smoothed_radius);
+      current_inflation_radius_ = smoothed_radius;
+      RCLCPP_INFO(parent_->get_logger(), "Inflation: %.3fm (distance: %.2fm)", 
+                 smoothed_radius, remaining_distance_);
+    }
+  }
+
+  void plan_callback(const nav_msgs::msg::Path::SharedPtr msg) {
+    if (msg->poses.empty()) { remaining_distance_ = -1.0; return; }
+    
+    double total = 0.0;
+    for (size_t i = 1; i < msg->poses.size(); i++) {
+      double dx = msg->poses[i].pose.position.x - msg->poses[i-1].pose.position.x;
+      double dy = msg->poses[i].pose.position.y - msg->poses[i-1].pose.position.y;
+      total += std::sqrt(dx*dx + dy*dy);
+    }
+    remaining_distance_ = total;
+    update_inflation_radius_from_distance();
+  }
   bool configure() override {
     RCLCPP_INFO(parent_->get_logger(), "🔧 [NavigationGoalCognition] Core configured");
     
     // Load cognitive parameters from ROS parameters
+    // Add after line 382
+    parent_->declare_parameter("normal_inflation_radius", NORMAL_INFLATION_RADIUS);
+    parent_->declare_parameter("critical_inflation_radius", CRITICAL_INFLATION_RADIUS);
+    parent_->declare_parameter("use_proportional_reduction", use_proportional_reduction_);
+    parent_->declare_parameter("reduction_start_distance", reduction_start_distance_);
+    parent_->declare_parameter("reduction_end_distance", reduction_end_distance_);
+    parent_->declare_parameter("max_reduction_percentage", max_reduction_percentage_);
+    parent_->declare_parameter("radius_update_rate", radius_update_rate_);
+    parent_->declare_parameter("min_radius_change_threshold", min_radius_change_threshold_);
+    
+    NORMAL_INFLATION_RADIUS = parent_->get_parameter("normal_inflation_radius").as_double();
+    CRITICAL_INFLATION_RADIUS = parent_->get_parameter("critical_inflation_radius").as_double();
+    use_proportional_reduction_ = parent_->get_parameter("use_proportional_reduction").as_bool();
+    reduction_start_distance_ = parent_->get_parameter("reduction_start_distance").as_double();
+    reduction_end_distance_ = parent_->get_parameter("reduction_end_distance").as_double();
+    max_reduction_percentage_ = parent_->get_parameter("max_reduction_percentage").as_double();
+    radius_update_rate_ = parent_->get_parameter("radius_update_rate").as_double();
+    min_radius_change_threshold_ = parent_->get_parameter("min_radius_change_threshold").as_double();
+    
+    plan_sub_ = parent_->create_subscription<nav_msgs::msg::Path>(
+        "/plan", 10, std::bind(&NavigationGoalCognitiveCore::plan_callback, this, _1));
+
     parent_->declare_parameter("cognitive_processing_interval", COGNITIVE_PROCESSING_INTERVAL);
     parent_->declare_parameter("goal_persistence_threshold", GOAL_PERSISTENCE_THRESHOLD);
     parent_->declare_parameter("criticality_confidence_threshold", CRITICALITY_CONFIDENCE_THRESHOLD);
@@ -391,7 +484,19 @@ public:
   }
 
 private:
+  double NORMAL_INFLATION_RADIUS;
+  double CRITICAL_INFLATION_RADIUS;
+  bool use_proportional_reduction_;
+  double reduction_start_distance_;
+  double reduction_end_distance_;
+  double max_reduction_percentage_;
+  double radius_update_rate_;
+  double min_radius_change_threshold_;
+  double current_inflation_radius_;
+  double remaining_distance_;
+  double previous_criticality_;
 
+  rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr plan_sub_;
   rclcpp::Client<rcl_interfaces::srv::SetParameters>::SharedPtr global_costmap_client_;
   void set_inflation_radius_via_service(double radius) {
     RCLCPP_INFO(parent_->get_logger(), "🔧 Setting inflation radius to %.3fm", radius);

@@ -46,8 +46,8 @@ public:
         
         // Declare and get parameters
         this->declare_parameter("normal_inflation_radius", 0.55);
-        this->declare_parameter("critical_inflation_radius", 0.01);
-        this->declare_parameter("recovery_inflation_radius", 0.01);
+        this->declare_parameter("critical_inflation_radius", 0.40);
+        this->declare_parameter("recovery_inflation_radius", 0.40);
         
         normal_inflation_radius_ = this->get_parameter("normal_inflation_radius").as_double();
         critical_inflation_radius_ = this->get_parameter("critical_inflation_radius").as_double();

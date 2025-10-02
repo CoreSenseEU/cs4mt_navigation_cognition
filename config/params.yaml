@@ -17,9 +17,9 @@ nav_goal_cognitive_module:
     criticality_confidence_threshold: 0.8
     
     # Required inflation radius parameters (for the efferent component)
-    normal_inflation_radius: 0.80 #0.55
-    critical_inflation_radius: 0.01 #0.25
-    recovery_inflation_radius: 0.10 #0.15
+    normal_inflation_radius: 0.55 #0.55
+    critical_inflation_radius: 0.25 #0.25
+    recovery_inflation_radius: 0.30 #0.15
     
     nav_goal_cognitive_input:
       topics: ["/critical_goal"]
@@ -28,6 +28,25 @@ nav_goal_cognitive_module:
     nav_goal_cognitive_output:
       topics: ["/goal_criticality"]
       types: ["std_msgs/msg/Bool"]
+    # ============================================
+    # PROPORTIONAL DISTANCE-BASED REDUCTION
+    # ============================================
+    use_proportional_reduction: true   # Enable distance-based scaling
+    
+    # Distance at which to start reducing radius (meters)
+    reduction_start_distance: 0.5      # Start reducing when closer than this
+    
+    # Minimum distance for maximum reduction (meters)
+    reduction_end_distance: 0.2        # Full reduction applied at this distance
+    
+    # Maximum reduction percentage (0.0 - 1.0)
+    # 0.5 = reduce radius by 50% when at goal
+    # 0.7 = reduce radius by 70% when at goal
+    max_reduction_percentage: 0.95      # Reduce by 60% at closest point
+    
+    # Smoothing
+    radius_update_rate: 0.08           # Smoothing factor (higher = faster response)
+    min_radius_change_threshold: 0.02  # Min change to trigger update (meters)
 
 # Behavior Trees
 behavior_trees:
