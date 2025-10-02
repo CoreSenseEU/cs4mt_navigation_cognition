@@ -105,6 +105,9 @@ ros2 run tf2_ros static_transform_publisher --x 0 --y 0 --z 0 --qx 0 --qy 0 --qz
 frame-id kmriiwa_base_footprint
 ```
 ```bash
+ros2 launch kmriiwa_navigation laserscan_merge.launch.py
+```
+```bash
 ros2 run topic_tools relay /kmriiwa/base/command/cmd_vel /cmd_vel
 ```
 ```bash
