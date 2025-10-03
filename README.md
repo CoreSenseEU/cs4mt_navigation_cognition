@@ -10,8 +10,6 @@ Use case of the [cs4home architecture prototype](https://github.com/CoreSenseEU/
 sudo apt-get install ros-humble-rclcpp-cascade-lifecycle*
 sudo apt-get install ros-humble-ament-cmake-clang-format
 sudo apt-get install ros-$ROS_DISTRO-behaviortree-cpp-v3
-
-
 ```
 
 ```bash
