@@ -17,6 +17,7 @@ sudo apt-get install ros-$ROS_DISTRO-behaviortree-cpp-v3
 ```bash
 cd ~/ros2_ws/src
 git clone -b humble https://github.com/CoreSenseEU/cs4home_architecture.git
+git clone -b humble-devel https://github.com/fmrico/cascade_lifecycle.git
 git clone https://github.com/KeerthiSagarSN/cs4mt_navigation_cognition/
 vcs import --recursive < cs4home_sound_project/thirparty.repos
 cd ~/ros2_ws
