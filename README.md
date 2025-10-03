@@ -7,14 +7,16 @@ Use case of the [cs4home architecture prototype](https://github.com/CoreSenseEU/
 ## Installation
 ### Only if not already installed
 ```bash
-sudo apt install ros-humble-rclcpp-cascade-lifecycle*
-sudo apt install ros-humble-ament-cmake-clang-format
+sudo apt-get install ros-humble-rclcpp-cascade-lifecycle*
+sudo apt-get install ros-humble-ament-cmake-clang-format
 sudo apt-get install ros-$ROS_DISTRO-behaviortree-cpp-v3
+
 
 ```
 
 ```bash
 cd ~/ros2_ws/src
+git clone -b humble https://github.com/CoreSenseEU/cs4home_architecture.git
 git clone https://github.com/KeerthiSagarSN/cs4mt_navigation_cognition/
 vcs import --recursive < cs4home_sound_project/thirparty.repos
 cd ~/ros2_ws
