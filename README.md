@@ -111,7 +111,7 @@ ros2 lifecycle set /nav_goal_cognitive_module activate
 ros2 lifecycle set /navigation_cognition_master configure
 ros2 lifecycle set /navigation_cognition_master activate
 ```
-
+## ----------------------------------- Agile Manufacturing Testbed ------------------------------
 
 ## Simulator
 
@@ -152,8 +152,22 @@ python3 send_multiple_goals_gazebo_with_cs.py
 ## Basic functionality of setting inflation radius based on goal criticality
 ![Reduce inflation radius at certian goals](./images/nav_cog_module_cs4mt.gif)
 
+## ----------------------------------- Manufacturing Inspection Testbed ------------------------------
+## Simulator
 
+Ridgeback Robot with Gazebo and Rviz2:
 
+```bash
+cd ~/ros2_ws/src
+git clone [https://github.com/KeerthiSagarSN/kmriiwa_ros2_bridge_stack](https://github.com/CoreSenseEU/samxl_mobile_manipulator_testbed.git)
+cd ~/ros2_ws
+colcon build --symlink-install
+```
+## Launch Gazebo with Rviz
+
+```bash
+ros2 launch ros2_ridgeback_navigation_samxl ridgeback_simulation_launch.py
+```
 
 
 
