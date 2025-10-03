@@ -101,11 +101,17 @@ Each component is managed as a ROS 2 Lifecycle Node and instantiated according t
 ```bash
 ros2 launch cs4mt_navigation_cognition cs4mt_navigation_cognition.launch.py
 ```
-# Manual activation of lifecylce node here
+# Manual activation of lifecylce node  here - Navigation cognitive module
 ```bash
-ros2 lifecycle set /cs4mt_navigation_cognition_master configure
-ros2 lifecycle set /cs4mt_navigation_cognition_master activate
+ros2 lifecycle set /nav_goal_cognitive_module configure
+ros2 lifecycle set /nav_goal_cognitive_module activate
 ```
+# Manual activation of lifecylce node  here - Navigation cognitive Master
+```bash
+ros2 lifecycle set /navigation_cognition_master configure
+ros2 lifecycle set /navigation_cognition_master activate
+```
+
 
 ## Simulator
 
