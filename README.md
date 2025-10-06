@@ -168,6 +168,12 @@ colcon build --symlink-install
 ```bash
 ros2 launch ros2_ridgeback_navigation_samxl ridgeback_simulation_launch.py
 ```
+## Inflation Radius adaptation using Cognitive Module
+
+```bash
+cd ~/ros2_ws/src/cs4mt_navigation_cognition/scripts/
+python3 coresense_navigation_goals_with_cs_samxl.py
+```
 
 
 
