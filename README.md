@@ -159,7 +159,7 @@ Ridgeback Robot with Gazebo and Rviz2:
 
 ```bash
 cd ~/ros2_ws/src
-git clone [https://github.com/KeerthiSagarSN/kmriiwa_ros2_bridge_stack](https://github.com/CoreSenseEU/samxl_mobile_manipulator_testbed.git)
+git clone [https://github.com/CoreSenseEU/samxl_mobile_manipulator_testbed.git](https://github.com/CoreSenseEU/samxl_mobile_manipulator_testbed.git)
 cd ~/ros2_ws
 colcon build --symlink-install
 ```
