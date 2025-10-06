@@ -155,7 +155,7 @@ def main():
     waypoint_goals = [
         {
             'pose': [4.90,-18.350,0,0,0,0.7302,0.68318],
-            'critical': False,
+            'critical': True,
             'description': 'Move front '
         },
         # {
