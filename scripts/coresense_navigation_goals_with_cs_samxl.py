@@ -154,7 +154,7 @@ def main():
     # Format: [x, y, z, qx, qy, qz, qw, is_critical]
     waypoint_goals = [
         {
-            'pose': [4.90,-18.350,0,0,0,0.7302,0.68318],
+            'pose': [3.0,-1.940,3.071,0,0,0.7302,0.68318],
             'critical': True,
             'description': 'Move front '
         },
@@ -164,13 +164,13 @@ def main():
         #     'description': 'Assembly station with UR - CRITICAL'
         # },
         {
-            'pose': [4.70,-18.350,0,0,0,0.7302,0.68318],
+            'pose': [3.372,10.940,3.071,0,0,0.7302,0.68318],
             'critical': True,
             'description': 'Move back'
         },
 
         {
-            'pose': [4.90,-18.350,0,0,0,0.7302,0.68318],
+            'pose': [3.372,-1.940,3.071,0,0,0.7302,0.68318],
             'critical': False,
             'description': 'Move front '
         },

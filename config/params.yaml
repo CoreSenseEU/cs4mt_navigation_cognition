@@ -17,9 +17,9 @@ nav_goal_cognitive_module:
     criticality_confidence_threshold: 0.8
     
     # Required inflation radius parameters (for the efferent component)
-    normal_inflation_radius: 0.55 #0.55
-    critical_inflation_radius: 0.25 #0.25
-    recovery_inflation_radius: 0.30 #0.15
+    normal_inflation_radius: 0.95 #0.55
+    critical_inflation_radius: 0.45 #0.25
+    recovery_inflation_radius: 0.40 #0.15
     
     nav_goal_cognitive_input:
       topics: ["/critical_goal"]
@@ -42,7 +42,7 @@ nav_goal_cognitive_module:
     # Maximum reduction percentage (0.0 - 1.0)
     # 0.5 = reduce radius by 50% when at goal
     # 0.7 = reduce radius by 70% when at goal
-    max_reduction_percentage: 0.95      # Reduce by 60% at closest point
+    max_reduction_percentage: 0.80      # Reduce by 60% at closest point
     
     # Smoothing
     radius_update_rate: 0.08           # Smoothing factor (higher = faster response)
@@ -86,10 +86,10 @@ behavior_trees:
           type: ActionNode
           service: "/global_costmap/global_costmap/set_parameters"
           parameters:
-            inflation_radius: 0.25  # Tight navigation
+            inflation_radius: 0.45  # Tight navigation
               
         HandleNormalGoal:
           type: ActionNode
           service: "/global_costmap/global_costmap/set_parameters"
           parameters:
-            inflation_radius: 0.55  # Normal navigation
+            inflation_radius: 0.95  # Normal navigation
