@@ -371,13 +371,16 @@ public:
    * @return True if configuration is successful.
    */
   double calculate_proportional_inflation_radius(double distance, double base_radius) {
-    if (distance < 0.0 || !use_proportional_reduction_) return base_radius;
-    if (distance >= reduction_start_distance_) return base_radius;
-    if (distance <= reduction_end_distance_) return base_radius * (1.0 - max_reduction_percentage_);
-    
-    double distance_range = reduction_start_distance_ - reduction_end_distance_;
-    double progress = (reduction_start_distance_ - distance) / distance_range;
-    return base_radius * (1.0 - progress * max_reduction_percentage_);
+      // Only apply proportional reduction for critical goals
+      if (!current_criticality_ || distance < 0.0 || !use_proportional_reduction_) {
+          return base_radius;
+      }
+      if (distance >= reduction_start_distance_) return base_radius;
+      if (distance <= reduction_end_distance_) return base_radius * (1.0 - max_reduction_percentage_);
+      
+      double distance_range = reduction_start_distance_ - reduction_end_distance_;
+      double progress = (reduction_start_distance_ - distance) / distance_range;
+      return base_radius * (1.0 - progress * max_reduction_percentage_);
   }
 
   double smooth_radius_transition(double target_radius) {
