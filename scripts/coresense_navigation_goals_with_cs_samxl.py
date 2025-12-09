@@ -28,6 +28,9 @@ class NavigationClient(Node):
         self.mutex1 = Lock()
         self.traj_response = String()
         self.navigation_complete = False
+
+        self.aruco_start_pub = self.create_publisher(Bool, '/start_aruco_recording', 10)
+
         
     # def send_goal_with_criticality(self, x, y, z, is_critical=False, orientation_w=1.0):
     #     """Send navigation goal with criticality annotation"""
@@ -146,6 +149,12 @@ class NavigationClient(Node):
         return result
 
 
+    def trigger_aruco_recording(self):
+        """Send signal to start ArUco recording"""
+        msg = Bool()
+        msg.data = True
+        self.aruco_start_pub.publish(msg)
+        self.get_logger().info('Sent ArUco recording start signal')
 def main():
     rclpy.init()
     navigator = NavigationClient()
@@ -156,6 +165,7 @@ def main():
         {
             'pose': [3.0,-1.940,3.071,0,0,0.7302,0.68318],
             'critical': True,
+            'pause_duration': 2.0,
             'description': 'Move front '
         },
         # {
@@ -166,12 +176,14 @@ def main():
         {
             'pose': [3.372,10.940,3.071,0,0,0.7302,0.68318],
             'critical': True,
+            'pause_duration': 20.0,
             'description': 'Move back'
         },
 
         {
             'pose': [3.372,-1.940,3.071,0,0,0.7302,0.68318],
             'critical': False,
+            'pause_duration': 2.0,
             'description': 'Move front '
         },
         # {
@@ -197,6 +209,19 @@ def main():
                 rclpy.spin_once(navigator)
             
             navigator.get_logger().info(f"Completed: {goal_info['description']}")
+
+
+            # Pause if duration specified
+            pause_duration = goal_info.get('pause_duration', 0.0)
+            if pause_duration > 0:
+                navigator.get_logger().info(f'Pausing for {pause_duration} seconds...')
+
+                # Trigger ArUco estimation if this is a critical goal
+                if goal_info['critical']:
+                    navigator.get_logger().info('Critical goal reached - Starting ArUco pose estimation')
+                    navigator.trigger_aruco_recording()
+                
+                time.sleep(pause_duration)
             
     except KeyboardInterrupt:
         navigator.get_logger().info('Navigation sequence interrupted')
