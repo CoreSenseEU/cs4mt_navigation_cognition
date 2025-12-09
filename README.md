@@ -168,17 +168,26 @@ colcon build --symlink-install
 ```bash
 ros2 launch ros2_ridgeback_navigation_samxl ridgeback_simulation_launch.py
 ```
+
+
+## ----------------------------------- Benchmark Testing------------------------------
+```bash
+cd cs4mt_navigation_cognition/scripts/
+python3 real_time_plotter_inflation_radius.py
+```
 ## Inflation Radius adaptation using Cognitive Module
 
 ```bash
-cd ~/ros2_ws/src/cs4mt_navigation_cognition/scripts/
+cd ~/ros2_ws/src/cs4mt_navigation_cognition/scripts/analysis/
 python3 coresense_navigation_goals_with_cs_samxl.py
 ```
-
-
-
-
-
+## ----------------------------------- Plot------------------------------
+Data gets saved in folder "home/navigation_data"
+```bash
+cd cs4mt_navigation_cognition/scripts/
+python3 plot_navigation_data.py
+python3 plot_aruco_pose_data.py
+```
 
 
 
