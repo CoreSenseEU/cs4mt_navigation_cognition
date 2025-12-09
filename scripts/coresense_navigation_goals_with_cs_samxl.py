@@ -166,6 +166,7 @@ def main():
             'pose': [3.0,-1.940,3.071,0,0,0.7302,0.68318],
             'critical': True,
             'pause_duration': 2.0,
+            'record_data': False,
             'description': 'Move front '
         },
         # {
@@ -176,6 +177,7 @@ def main():
         {
             'pose': [3.372,10.940,3.071,0,0,0.7302,0.68318],
             'critical': True,
+            'record_data': True,
             'pause_duration': 20.0,
             'description': 'Move back'
         },
@@ -183,6 +185,7 @@ def main():
         {
             'pose': [3.372,-1.940,3.071,0,0,0.7302,0.68318],
             'critical': False,
+            'record_data': False,
             'pause_duration': 2.0,
             'description': 'Move front '
         },
@@ -217,7 +220,7 @@ def main():
                 navigator.get_logger().info(f'Pausing for {pause_duration} seconds...')
 
                 # Trigger ArUco estimation if this is a critical goal
-                if goal_info['critical']:
+                if goal_info['record_data']:
                     navigator.get_logger().info('Critical goal reached - Starting ArUco pose estimation')
                     navigator.trigger_aruco_recording()
                 
