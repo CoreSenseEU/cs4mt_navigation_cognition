@@ -175,6 +175,10 @@ ros2 launch ros2_ridgeback_navigation_samxl ridgeback_simulation_launch.py
 cd cs4mt_navigation_cognition/scripts/
 python3 real_time_plotter_inflation_radius.py
 ```
+In the NUC launch the following commands for starting the realsense node
+```bash
+ros2 launch realsense2_camera rs_launch.py
+ros2 launch aruco_pose_estimation aruco_pose_estimation.launch.py marker_size:=0.1 aruco_dictionary_id:=DICT_5X5_250 camera_frame:=camera_link```
 ## Inflation Radius adaptation using Cognitive Module
 
 ```bash
