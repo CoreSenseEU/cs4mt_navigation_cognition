@@ -2,6 +2,7 @@
 import numpy as np
 import sys
 import os
+import glob
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -25,11 +26,8 @@ def print_aruco_data(npz_file):
     
     print(f"\n=== ArUco Recording Data ===")
     print(f"File: {os.path.basename(npz_file)}")
+    print(f"Available keys: {data.files}")
     
-    # Check available keys
-    print(f"\nAvailable keys: {data.files}")
-    
-    # Distances
     if 'distances' in data.files:
         distances = data['distances']
         print(f"\n--- ArUco Distances ---")
@@ -39,7 +37,6 @@ def print_aruco_data(npz_file):
         print(f"  Min: {np.min(distances):.4f} m")
         print(f"  Max: {np.max(distances):.4f} m")
     
-    # Marker positions
     if 'positions' in data.files:
         positions = data['positions']
         print(f"\n--- Marker Positions ---")
@@ -48,7 +45,6 @@ def print_aruco_data(npz_file):
         print(f"  Y: mean={np.mean(positions[:,1]):.4f}, std={np.std(positions[:,1]):.4f}")
         print(f"  Z: mean={np.mean(positions[:,2]):.4f}, std={np.std(positions[:,2]):.4f}")
     
-    # Marker IDs
     if 'marker_ids' in data.files:
         marker_ids = data['marker_ids']
         unique_ids = np.unique(marker_ids)
@@ -58,7 +54,6 @@ def print_aruco_data(npz_file):
             count = np.sum(marker_ids == mid)
             print(f"  ID {mid}: {count} samples")
     
-    # TF poses
     if 'tf_poses' in data.files:
         tf_poses = data['tf_poses']
         valid = ~np.isnan(tf_poses).any(axis=1)
@@ -69,7 +64,6 @@ def print_aruco_data(npz_file):
             print(f"  Y: mean={np.nanmean(tf_poses[:,1]):.4f}, std={np.nanstd(tf_poses[:,1]):.4f}")
             print(f"  Yaw: mean={np.nanmean(tf_poses[:,2]):.4f}, std={np.nanstd(tf_poses[:,2]):.4f}")
     
-    # AMCL poses
     if 'amcl_positions' in data.files:
         amcl_pos = data['amcl_positions']
         valid = ~np.isnan(amcl_pos).any(axis=1)
@@ -86,12 +80,28 @@ def print_aruco_data(npz_file):
         print(f"\n--- AMCL Orientations (qx, qy, qz, qw) ---")
         print(f"  Total: {len(amcl_ori)}, Valid: {np.sum(valid)}")
     
-    # Recording info
     if 'recording_duration' in data.files:
         print(f"\n--- Recording Info ---")
         print(f"  Duration: {data['recording_duration']} s")
     if 'num_samples' in data.files:
         print(f"  Num samples: {data['num_samples']}")
+
+
+def find_aruco_recordings(data_dir=None):
+    """Find all aruco recording files"""
+    if data_dir is None:
+        data_dir = os.path.expanduser('~/navigation_data')
+    
+    patterns = [
+        os.path.join(data_dir, 'aruco_recording_*.npz'),
+        os.path.join(data_dir, 'aruco_recordings', 'aruco_recording_*.npz')
+    ]
+    
+    files = []
+    for pattern in patterns:
+        files.extend(glob.glob(pattern))
+    
+    return sorted(files)
 
 
 def plot_navigation_data(npz_file):
@@ -128,36 +138,48 @@ def plot_navigation_data(npz_file):
 
 
 def main():
+    data_dir = os.path.expanduser('~/navigation_data')
+    
     if len(sys.argv) < 2:
         print("Usage:")
-        print("  python3 plot_navigation_data.py <npz_file>         # Plot navigation data")
-        print("  python3 plot_navigation_data.py <npz_file> --aruco # Print ArUco data")
-        print("  python3 plot_navigation_data.py <npz_file> --keys  # Print NPZ keys")
-        
-        # Try latest file
-        data_dir = os.path.expanduser('~/navigation_data')
-        if os.path.exists(data_dir):
-            files = sorted([f for f in os.listdir(data_dir) if f.endswith('.npz')])
-            if files:
-                latest_file = os.path.join(data_dir, files[-1])
-                print(f"\nLatest file: {latest_file}")
-                plot_navigation_data(latest_file)
+        print("  python3 plot_navigation_data.py <npz_file>")
+        print("  python3 plot_navigation_data.py --list     # List all aruco recordings")
+        print("  python3 plot_navigation_data.py --latest   # Print latest aruco recording")
+        print("  python3 plot_navigation_data.py --all      # Print all aruco recordings")
         sys.exit(0)
     
-    npz_file = sys.argv[1]
+    arg = sys.argv[1]
     
-    if len(sys.argv) > 2:
-        if sys.argv[2] == '--aruco':
-            print_aruco_data(npz_file)
-        elif sys.argv[2] == '--keys':
-            print_npz_keys(npz_file)
-    else:
-        # Check if it's an aruco recording or navigation data
-        data = np.load(npz_file)
-        if 'distances' in data.files or 'positions' in data.files:
-            print_aruco_data(npz_file)
+    if arg == '--list':
+        files = find_aruco_recordings(data_dir)
+        print(f"\nFound {len(files)} ArUco recordings:")
+        for f in files:
+            print(f"  {f}")
+    
+    elif arg == '--latest':
+        files = find_aruco_recordings(data_dir)
+        if files:
+            print_aruco_data(files[-1])
         else:
-            plot_navigation_data(npz_file)
+            print("No ArUco recordings found")
+    
+    elif arg == '--all':
+        files = find_aruco_recordings(data_dir)
+        if files:
+            for f in files:
+                print_aruco_data(f)
+                print("\n" + "="*60)
+        else:
+            print("No ArUco recordings found")
+    
+    elif os.path.isfile(arg):
+        if 'aruco_recording' in arg:
+            print_aruco_data(arg)
+        else:
+            plot_navigation_data(arg)
+    
+    else:
+        print(f"File not found: {arg}")
 
 
 if __name__ == '__main__':
