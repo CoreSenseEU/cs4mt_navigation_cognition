@@ -17,9 +17,9 @@ nav_goal_cognitive_module:
     criticality_confidence_threshold: 0.8
     
     # Required inflation radius parameters (for the efferent component)
-    normal_inflation_radius: 0.95 #0.55
-    critical_inflation_radius: 0.45 #0.25
-    recovery_inflation_radius: 0.40 #0.15
+    normal_inflation_radius: 0.95 #0.95 -> moderate behaviour
+    critical_inflation_radius: 0.225 #0.28 #0.45 -> moderate behaviour 
+    recovery_inflation_radius: 0.20 #0.25 #0.40 -> 0.40
     
     nav_goal_cognitive_input:
       topics: ["/critical_goal"]
@@ -45,8 +45,8 @@ nav_goal_cognitive_module:
     max_reduction_percentage: 0.80      # Reduce by 60% at closest point
     
     # Smoothing
-    radius_update_rate: 0.08           # Smoothing factor (higher = faster response)
-    min_radius_change_threshold: 0.02  # Min change to trigger update (meters)
+    radius_update_rate: 0.16           # 0.08 - moderate Smoothing factor (higher = faster response)
+    min_radius_change_threshold: 0.02  # 0.02 Min change to trigger update (meters)
 
 # Behavior Trees
 behavior_trees:
