@@ -68,12 +68,12 @@ public:
 
     // Distance based goal-cognition
     this->NORMAL_INFLATION_RADIUS = 0.60;
-    this->CRITICAL_INFLATION_RADIUS = 0.25;
+    this->CRITICAL_INFLATION_RADIUS = 0.15;
     this->use_proportional_reduction_ = true;
     this->reduction_start_distance_ = 3.0;
-    this->reduction_end_distance_ = 0.1;
+    this->reduction_end_distance_ = 0.0051;
     this->max_reduction_percentage_ = 0.8;
-    this->radius_update_rate_ = 0.08;
+    this->radius_update_rate_ = 0.16;
     this->min_radius_change_threshold_ = 0.02;
 
     this->current_inflation_radius_ = NORMAL_INFLATION_RADIUS;
@@ -436,6 +436,8 @@ public:
     max_reduction_percentage_ = parent_->get_parameter("max_reduction_percentage").as_double();
     radius_update_rate_ = parent_->get_parameter("radius_update_rate").as_double();
     min_radius_change_threshold_ = parent_->get_parameter("min_radius_change_threshold").as_double();
+
+    current_inflation_radius_ = NORMAL_INFLATION_RADIUS;
     
     plan_sub_ = parent_->create_subscription<nav_msgs::msg::Path>(
         "/plan", 10, std::bind(&NavigationGoalCognitiveCore::plan_callback, this, _1));
@@ -497,7 +499,7 @@ private:
   double min_radius_change_threshold_;
   double current_inflation_radius_;
   double remaining_distance_;
-  double previous_criticality_;
+  bool previous_criticality_;
 
   rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr plan_sub_;
   rclcpp::Client<rcl_interfaces::srv::SetParameters>::SharedPtr global_costmap_client_;

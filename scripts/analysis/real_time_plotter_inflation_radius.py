@@ -27,6 +27,9 @@ class PlotRelay(Node):
         # Publishers
         self.distance_pub = self.create_publisher(Float32, '/goal_distance', 10)
         self.inflation_pub = self.create_publisher(Float32, '/inflation_radius', 10)
+
+        self.declare_parameter('aruco_topic', '/aruco/camera1/markers')
+        aruco_topic = self.get_parameter('aruco_topic').value
         
         # Subscribers
         self.feedback_sub = self.create_subscription(
@@ -52,7 +55,7 @@ class PlotRelay(Node):
         
         self.aruco_markers_sub = self.create_subscription(
             ArucoMarkers,
-            '/aruco/markers',
+            aruco_topic,
             self.aruco_markers_callback,
             10
         )
@@ -71,11 +74,6 @@ class PlotRelay(Node):
             10
         )
         
-        # Parameter client for reading inflation radius
-        self.param_client = self.create_client(
-            GetParameters,
-            '/global_costmap/global_costmap/get_parameters'
-        )
         
         # Store current values
         self.current_inflation_radius = None
